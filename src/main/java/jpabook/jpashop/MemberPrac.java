@@ -10,7 +10,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class Member {
+public class MemberPrac {
 
     @Id @GeneratedValue
     private Long id;
