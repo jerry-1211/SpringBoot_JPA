@@ -5,6 +5,8 @@ import jpabook.jpashop.domain.Order;
 import jpabook.jpashop.domain.OrderStatus;
 import jpabook.jpashop.repository.OrderRepository;
 import jpabook.jpashop.repository.OrderSearch;
+import jpabook.jpashop.repository.order.simplequery.OrderSimpleQueryDto;
+import jpabook.jpashop.repository.order.simplequery.OrderSimpleQueryRepository;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,14 +18,16 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
-public class  OrderSimpleApiController {
+public class OrderSimpleApiController {
 
     private final OrderRepository orderRepository;
+    private final OrderSimpleQueryRepository orderSimpleQueryRepository;
+
 
     @GetMapping("/api/v1/simple-orders")
-    public List<Order> ordersV1(){
+    public List<Order> ordersV1() {
         List<Order> all = orderRepository.findAllByCriteria(new OrderSearch());
-        for(Order order: all){
+        for (Order order : all) {
             /**
              * order.getMember() 여기까지는 프록시 객체
              * .getName(); 이 부분 부처 Lazy 강제 초기화
@@ -42,7 +46,7 @@ public class  OrderSimpleApiController {
 
 
     @GetMapping("/api/v2/simple-orders")
-    public List<SimpleOrderDto> ordersV2(){
+    public List<SimpleOrderDto> ordersV2() {
         /**
          * Order의 개수 조회 (Order 쿼리 1번 호출)
          * */
@@ -60,13 +64,12 @@ public class  OrderSimpleApiController {
 
         return result;
     }
-,
 
     /**
      * fetch join으로 order -> member, order->delivery는 이미 조회 된 상퇴로 지연 로딩 X
-     * */
+     */
     @GetMapping("/api/v3/simple-orders")
-    public List<SimpleOrderDto> orderV3(){
+    public List<SimpleOrderDto> orderV3() {
         List<Order> orders = orderRepository.findAllWithMemberDelivery();
         List<SimpleOrderDto> result = orders.stream()
                 .map(o -> new SimpleOrderDto(o))
@@ -75,12 +78,17 @@ public class  OrderSimpleApiController {
         return result;
     }
 
+    @GetMapping("/api/v4/simple-orders")
+    public List<OrderSimpleQueryDto> ordersV4() {
+        return orderSimpleQueryRepository.findOrderDto();
+    }
+
     @Data
-    static class SimpleOrderDto{
+    static class SimpleOrderDto {
         /**
          * DTO가 이렇게 엔티티를 파라미터로 받는 것은 크게 문제되지 않는다.
          * 큰 영향력 없는 애가 영향력있는 애한테 의존하는 것은 큰 문제 되지 않음.
-         * */
+         */
         public SimpleOrderDto(Order order) {
             orderId = order.getId();
             name = order.getMember().getName(); // Lazy 초기화 (Member 조회)
