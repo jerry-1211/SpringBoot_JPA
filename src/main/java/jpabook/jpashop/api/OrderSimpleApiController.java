@@ -60,6 +60,20 @@ public class  OrderSimpleApiController {
 
         return result;
     }
+,
+
+    /**
+     * fetch join으로 order -> member, order->delivery는 이미 조회 된 상퇴로 지연 로딩 X
+     * */
+    @GetMapping("/api/v3/simple-orders")
+    public List<SimpleOrderDto> orderV3(){
+        List<Order> orders = orderRepository.findAllWithMemberDelivery();
+        List<SimpleOrderDto> result = orders.stream()
+                .map(o -> new SimpleOrderDto(o))
+                .collect(Collectors.toList());
+
+        return result;
+    }
 
     @Data
     static class SimpleOrderDto{
@@ -74,7 +88,7 @@ public class  OrderSimpleApiController {
             orderStatus = order.getStatus();
             address = order.getDelivery().getAddress(); //Lazy 초기화 (Delivey 조회)
         }
-        
+
         private Long orderId;
         private String name;
         private LocalDateTime orderDate;
