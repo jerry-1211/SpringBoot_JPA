@@ -4,6 +4,7 @@ import jpabook.jpashop.domain.*;
 import jpabook.jpashop.domain.item.Item;
 import jpabook.jpashop.repository.OrderRepository;
 import jpabook.jpashop.repository.OrderSearch;
+import jpabook.jpashop.repository.order.query.OrderFlatDto;
 import jpabook.jpashop.repository.order.query.OrderQueryDto;
 import jpabook.jpashop.repository.order.query.OrderQueryRepository;
 import lombok.Getter;
@@ -78,6 +79,14 @@ public class OrderApiController {
         return orderQueryRepository.findAllByDto_optimization();
     }
 
+    @GetMapping("/api/v6/orders")
+    public List<OrderFlatDto> orderV6(){
+        /**
+         * 반환형을 OrderQueryDto에 맞추야 한다.
+         * 하지만 맞추려면 심각한 노가다를 해야한다...
+         * */
+        return orderQueryRepository.findAllByDto_flat();
+    }
 
     @Getter //@Data 써도 상관 없음
     static class OrderDto {
